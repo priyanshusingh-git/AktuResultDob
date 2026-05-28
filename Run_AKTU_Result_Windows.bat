@@ -28,7 +28,7 @@ if %errorlevel% neq 0 (
     set PY_CMD=python
 )
 
-%PY_CMD% -m pip install -r requirements.txt --quiet --disable-pip-version-check
+%PY_CMD% -m pip install -r requirements.txt --quiet --disable-pip-version-check --user
 
 echo.
 echo Starting application window...

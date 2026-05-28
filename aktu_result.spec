@@ -30,8 +30,6 @@ hiddenimports.extend([
 if os.path.exists('session_caches'):
     datas.append(('session_caches', 'session_caches'))
 
-block_cipher = None
-
 a = Analysis(
     ['main.py'],
     pathex=['.'],
@@ -57,11 +55,10 @@ a = Analysis(
     ],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
-    cipher=block_cipher,
     noarchive=False,
 )
 
-pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+pyz = PYZ(a.pure, a.zipped_data)
 
 exe = EXE(
     pyz,

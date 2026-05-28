@@ -8,6 +8,14 @@ from models import SemesterResult, StudentResult, SubjectResult
 PARSE_FILTER = SoupStrainer(["span", "table"])
 
 
+def _clean_mark(mark: str) -> int:
+    """Convert a raw marks string to an integer, returning 0 for missing/dash values."""
+    if not mark or mark == "-":
+        return 0
+    cleaned = re.sub(r"[^\d]", "", mark)
+    return int(cleaned) if cleaned else 0
+
+
 def extract_identity_markers(soup: BeautifulSoup) -> list[tuple[str, str]]:
     markers: list[tuple[str, str]] = []
     for element in soup.find_all("span", id=True):
@@ -102,14 +110,8 @@ def parse_http_semester_data(soup: BeautifulSoup) -> dict[int, list[SemesterResu
                 internal = cols[3].get_text(strip=True)
                 external = cols[4].get_text(strip=True)
 
-                def clean_mark(mark: str) -> int:
-                    if not mark or mark == "-":
-                        return 0
-                    cleaned = re.sub(r"[^\d]", "", mark)
-                    return int(cleaned) if cleaned else 0
-
-                int_val = clean_mark(internal)
-                ext_val = clean_mark(external)
+                int_val = _clean_mark(internal)
+                ext_val = _clean_mark(external)
                 subjects.append(
                     {
                         "Code": code,

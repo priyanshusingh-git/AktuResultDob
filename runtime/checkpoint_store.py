@@ -117,63 +117,69 @@ class CheckpointStore:
         now = self._now()
 
         with self._connect() as conn:
-            row = conn.execute(
-                """
-                SELECT *
-                FROM runs
-                WHERE input_file = ?
-                  AND output_file = ?
-                  AND semesters_json = ?
-                  AND status IN ('running', 'stopped')
-                ORDER BY id DESC
-                LIMIT 1
-                """,
-                (input_file, output_file, semesters_json),
-            ).fetchone()
+            conn.execute("BEGIN")
+            try:
+                row = conn.execute(
+                    """
+                    SELECT *
+                    FROM runs
+                    WHERE input_file = ?
+                      AND output_file = ?
+                      AND semesters_json = ?
+                      AND status IN ('running', 'stopped')
+                    ORDER BY id DESC
+                    LIMIT 1
+                    """,
+                    (input_file, output_file, semesters_json),
+                ).fetchone()
 
-            if row:
-                run_id = row["id"]
-                conn.execute(
-                    """
-                    UPDATE runs
-                    SET status = 'running', updated_at = ?
-                    WHERE id = ?
-                    """,
-                    (now, run_id),
-                )
-                conn.execute(
-                    """
-                    UPDATE students
-                    SET state = 'pending',
-                        last_error = NULL,
-                        updated_at = ?
-                    WHERE run_id = ?
-                      AND state IN ('processing', 'failed')
-                    """,
-                    (now, run_id),
-                )
-            else:
-                cursor = conn.execute(
-                    """
-                    INSERT INTO runs (input_file, output_file, semesters_json, status, created_at, updated_at)
-                    VALUES (?, ?, ?, 'running', ?, ?)
-                    """,
-                    (input_file, output_file, semesters_json, now, now),
-                )
-                run_id = cursor.lastrowid
+                if row:
+                    run_id = row["id"]
+                    conn.execute(
+                        """
+                        UPDATE runs
+                        SET status = 'running', updated_at = ?
+                        WHERE id = ?
+                        """,
+                        (now, run_id),
+                    )
+                    conn.execute(
+                        """
+                        UPDATE students
+                        SET state = 'pending',
+                            last_error = NULL,
+                            updated_at = ?
+                        WHERE run_id = ?
+                          AND state IN ('processing', 'failed')
+                        """,
+                        (now, run_id),
+                    )
+                else:
+                    cursor = conn.execute(
+                        """
+                        INSERT INTO runs (input_file, output_file, semesters_json, status, created_at, updated_at)
+                        VALUES (?, ?, ?, 'running', ?, ?)
+                        """,
+                        (input_file, output_file, semesters_json, now, now),
+                    )
+                    run_id = cursor.lastrowid
 
-            for student in students:
-                conn.execute(
-                    """
-                    INSERT INTO students (run_id, row_index, roll_no, dob, state, last_error, attempts, updated_at)
-                    VALUES (?, ?, ?, ?, 'pending', NULL, 0, ?)
-                    ON CONFLICT(run_id, roll_no) DO UPDATE SET
-                        row_index = excluded.row_index,
-                        dob = excluded.dob,
-                        updated_at = excluded.updated_at
-                    """,
-                    (run_id, student["row_index"], student["roll_no"], student["dob"], now),
-                )
+                for student in students:
+                    conn.execute(
+                        """
+                        INSERT INTO students (run_id, row_index, roll_no, dob, state, last_error, attempts, updated_at)
+                        VALUES (?, ?, ?, ?, 'pending', NULL, 0, ?)
+                        ON CONFLICT(run_id, roll_no) DO UPDATE SET
+                            row_index = excluded.row_index,
+                            dob = excluded.dob,
+                            updated_at = excluded.updated_at
+                        """,
+                        (run_id, student["row_index"], student["roll_no"], student["dob"], now),
+                    )
+                conn.execute("COMMIT")
+            except Exception:
+                conn.execute("ROLLBACK")
+                raise
 
         return run_id
 
@@ -257,47 +263,53 @@ class CheckpointStore:
         now = self._now()
         roll_no = str(result["Roll No"]).strip()
         with self._connect() as conn:
-            conn.execute(
-                "DELETE FROM results WHERE run_id = ? AND roll_no = ?",
-                (run_id, roll_no),
-            )
-
-            for sem_num, sem_data in result.get("Semesters", {}).items():
+            conn.execute("BEGIN")
+            try:
                 conn.execute(
-                    """
-                    INSERT INTO results (
-                        run_id, roll_no, semester_no, student_name, dob, sgpa, grand_total, subjects_json, updated_at
-                    )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """,
-                    (
-                        run_id,
-                        roll_no,
-                        int(sem_num),
-                        result["Name"],
-                        result["DOB"],
-                        sem_data.get("SGPA", ""),
-                        sem_data.get("Grand Total", ""),
-                        json.dumps(sem_data.get("Subjects", [])),
-                        now,
-                    ),
+                    "DELETE FROM results WHERE run_id = ? AND roll_no = ?",
+                    (run_id, roll_no),
                 )
 
-            conn.execute(
-                """
-                UPDATE students
-                SET state = 'processed',
-                    last_error = NULL,
-                    updated_at = ?
-                WHERE run_id = ?
-                  AND roll_no = ?
-                """,
-                (now, run_id, roll_no),
-            )
-            conn.execute(
-                "DELETE FROM failures WHERE run_id = ? AND roll_no = ?",
-                (run_id, roll_no),
-            )
+                for sem_num, sem_data in result.get("Semesters", {}).items():
+                    conn.execute(
+                        """
+                        INSERT INTO results (
+                            run_id, roll_no, semester_no, student_name, dob, sgpa, grand_total, subjects_json, updated_at
+                        )
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        """,
+                        (
+                            run_id,
+                            roll_no,
+                            int(sem_num),
+                            result["Name"],
+                            result["DOB"],
+                            sem_data.get("SGPA", ""),
+                            sem_data.get("Grand Total", ""),
+                            json.dumps(sem_data.get("Subjects", [])),
+                            now,
+                        ),
+                    )
+
+                conn.execute(
+                    """
+                    UPDATE students
+                    SET state = 'processed',
+                        last_error = NULL,
+                        updated_at = ?
+                    WHERE run_id = ?
+                      AND roll_no = ?
+                    """,
+                    (now, run_id, roll_no),
+                )
+                conn.execute(
+                    "DELETE FROM failures WHERE run_id = ? AND roll_no = ?",
+                    (run_id, roll_no),
+                )
+                conn.execute("COMMIT")
+            except Exception:
+                conn.execute("ROLLBACK")
+                raise
 
     def save_failure(self, run_id, roll_no, error_type):
         now = self._now()

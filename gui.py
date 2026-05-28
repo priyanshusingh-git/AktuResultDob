@@ -234,8 +234,8 @@ class App(ctk.CTk):
                 current_log = None
                 if app_logger.logger.handlers:
                     for handler in app_logger.logger.handlers:
-                        if isinstance(handler, logging.FileHandler):
-                            current_log = handler.baseFilename
+                        if isinstance(handler, logging.FileHandler) and hasattr(handler, "baseFilename"):
+                            current_log = os.path.abspath(handler.baseFilename)
                             break
                 for filename in os.listdir(logs_dir):
                     if not filename.endswith(".log"):
@@ -353,10 +353,14 @@ class App(ctk.CTk):
             self.engine.stop_scraping()
 
     def _on_finish(self):
+        # Called from the background worker thread — schedule real UI work on main thread.
+        self.after(0, self._on_finish_ui)
+
+    def _on_finish_ui(self):
+        """All UI updates from run completion — must run on the main thread."""
         self.start_btn.configure(state="normal", text="START SCRAPER")
         self.pause_btn.configure(state="disabled", text="PAUSE", fg_color="#f0ad4e", text_color=("black", "black"))
         self.stop_btn.configure(state="disabled")
-
 
         self.all_sem_cb.configure(state="normal")
         state = "disabled" if self.all_semesters_var.get() else "normal"
@@ -428,5 +432,8 @@ class App(ctk.CTk):
             self.engine.stop_scraping()
             self._set_status("Cleaning up resources...")
             self.update()
+            # Wait for the worker thread to finish before tearing down Tk.
+            # Without this, the thread may call self.after() on a destroyed root.
+            self.engine.thread.join(timeout=5)
 
         super().destroy()

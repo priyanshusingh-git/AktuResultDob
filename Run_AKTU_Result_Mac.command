@@ -15,15 +15,15 @@ if ! command -v python3 &> /dev/null; then
     echo "ERROR: Python 3 was not found on this Mac."
     echo "Please download and install Python from: https://www.python.org/downloads/"
     echo ""
-    echo "Press [Enter] to close this window..."
-    read
+    read -p "Press [Enter] to close this window..."
     exit 1
 fi
 
-python3 -m pip install -r requirements.txt --quiet --disable-pip-version-check
+python3 -m pip install -r requirements.txt --quiet --disable-pip-version-check --user
 
 echo "Starting application window..."
 python3 main.py
 
 echo ""
-echo "AKTU Result has closed. You can now close this terminal window."
+echo "AKTU Result has closed."
+read -p "Press [Enter] to close this terminal window..."

@@ -10,6 +10,15 @@ class ExcelProcessor:
         self.logger = logger
 
     def validate_input(self, input_path):
+        from datetime import datetime, date
+
+        def clean(v):
+            if isinstance(v, float) and v.is_integer():
+                return str(int(v)).strip()
+            if isinstance(v, (datetime, date)):
+                return v.strftime("%Y-%m-%d %H:%M:%S")
+            return str(v).strip()
+
         self.logger.info(f"Loading input file: {input_path}")
         try:
             if not os.path.exists(input_path):
@@ -53,14 +62,6 @@ class ExcelProcessor:
 
                 if roll_val is None or dob_val is None:
                     continue
-
-                from datetime import datetime, date
-                def clean(v):
-                    if isinstance(v, float) and v.is_integer():
-                        return str(int(v)).strip()
-                    if isinstance(v, (datetime, date)):
-                        return v.strftime("%Y-%m-%d %H:%M:%S")
-                    return str(v).strip()
 
                 roll_str = clean(roll_val)
                 dob_str = clean(dob_val)

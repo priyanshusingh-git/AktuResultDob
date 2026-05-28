@@ -8,6 +8,7 @@ if PACKAGE_DIR not in sys.path:
 
 from gui import App
 from runtime.logger import app_logger
+from runtime.utils import get_logs_dir
 
 
 def main():
@@ -18,9 +19,14 @@ def main():
     except Exception:
         import traceback
 
-        app_logger.error(f"FATAL ERROR during app startup:\n{traceback.format_exc()}")
-        with open(os.path.expanduser("~/Desktop/aktu_result_crash.txt"), "w", encoding="utf-8") as handle:
-            handle.write(traceback.format_exc())
+        tb = traceback.format_exc()
+        app_logger.error(f"FATAL ERROR during app startup:\n{tb}")
+        crash_path = os.path.join(get_logs_dir(), "aktu_result_crash.txt")
+        try:
+            with open(crash_path, "w", encoding="utf-8") as handle:
+                handle.write(tb)
+        except Exception:
+            pass
 
 
 if __name__ == "__main__":
