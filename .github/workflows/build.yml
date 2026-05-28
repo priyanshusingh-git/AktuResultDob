@@ -49,7 +49,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
-          Compress-Archive -Path dist/AKTU_Result -DestinationPath dist/AKTU_Result_Windows.zip
+          Compress-Archive -Path dist/AKTU_Result.exe -DestinationPath dist/AKTU_Result_Windows.zip
 
       - name: Package Release Artifacts (macOS)
         if: matrix.os == 'macos-latest'
