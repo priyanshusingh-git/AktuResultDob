@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.DS_Store
+.aktubot_http_home/
+build/
+dist/
+*.sqlite
+*.log
+.vscode/
+.idea/

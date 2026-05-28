@@ -1,0 +1,72 @@
+name: Build Standalone Executables
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install -r requirements.txt
+
+      - name: Build Standalone Application
+        run: |
+          pyinstaller --noconfirm aktu_result.spec
+
+      - name: Package Release Artifacts (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          Compress-Archive -Path dist/AKTU_Result -DestinationPath dist/AKTU_Result_Windows.zip
+
+      - name: Package Release Artifacts (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          cd dist
+          zip -r AKTU_Result_Mac.zip AKTU_Result.app
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: AKTU_Result_${{ matrix.os }}
+          path: dist/*.zip
+          if-no-files-found: error
+
+      - name: Create Release and Upload Assets
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

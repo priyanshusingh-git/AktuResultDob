@@ -1,0 +1,4 @@
+openpyxl
+customtkinter
+requests
+beautifulsoup4
