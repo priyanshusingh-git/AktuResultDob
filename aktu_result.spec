@@ -51,7 +51,6 @@ a = Analysis(
         'matplotlib',
         'scipy',
         'tkinter.test',
-        'email',
         'pdb',
         'IPython',
         'docutils',
