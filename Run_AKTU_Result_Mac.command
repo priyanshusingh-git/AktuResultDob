@@ -2,13 +2,13 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$DIR"
-export AKTUBOT_HTTP_HOME="$DIR/.aktubot_http_home"
+export AKTU_RESULT_HOME="$DIR/.aktubot_http_home"
 
 echo "==========================================="
 echo " Starting AKTU Result                      "
 echo "==========================================="
 echo "Checking dependencies..."
-echo "Using local app home: $AKTUBOT_HTTP_HOME"
+echo "Using local app home: $AKTU_RESULT_HOME"
 
 if ! command -v python3 &> /dev/null; then
     echo ""

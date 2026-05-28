@@ -2,8 +2,8 @@ import os
 import sys
 
 
-APP_DIR_NAME = "AktuBot"
-APP_HOME_ENV_VAR = "AKTUBOT_HTTP_HOME"
+APP_DIR_NAME = "AKTU_Result"
+APP_HOME_ENV_VAR = "AKTU_RESULT_HOME"
 
 
 def is_frozen_app():

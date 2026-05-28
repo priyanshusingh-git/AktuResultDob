@@ -1,14 +1,15 @@
 @echo off
 title AKTU Result
 color 0b
-set "AKTUBOT_HTTP_HOME=%~dp0.aktubot_http_home"
+cd /d "%~dp0"
+set "AKTU_RESULT_HOME=%~dp0.aktubot_http_home"
 
 echo ===========================================
 echo  Starting AKTU Result
 echo ===========================================
 echo.
 echo Checking dependencies...
-echo Using local app home: %AKTUBOT_HTTP_HOME%
+echo Using local app home: %AKTU_RESULT_HOME%
 
 where python >nul 2>nul
 if %errorlevel% neq 0 (

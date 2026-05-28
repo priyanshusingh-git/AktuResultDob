@@ -12,14 +12,14 @@ from runtime.logger import app_logger
 
 def main():
     try:
-        app_logger.info("Starting AktuBot HTTP Application...")
+        app_logger.info("Starting AKTU Result Application...")
         app = App()
         app.mainloop()
     except Exception:
         import traceback
 
-        app_logger.error(f"FATAL ERROR during HTTP app startup:\n{traceback.format_exc()}")
-        with open(os.path.expanduser("~/Desktop/aktubot_http_crash.txt"), "w", encoding="utf-8") as handle:
+        app_logger.error(f"FATAL ERROR during app startup:\n{traceback.format_exc()}")
+        with open(os.path.expanduser("~/Desktop/aktu_result_crash.txt"), "w", encoding="utf-8") as handle:
             handle.write(traceback.format_exc())
 
 
