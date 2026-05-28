@@ -1,18 +1,21 @@
-from __future__ import annotations
-
-from importlib import import_module
 import os
 import sys
 
 
 PACKAGE_DIR = os.path.abspath(os.path.dirname(__file__))
-PACKAGE_NAME = os.path.basename(PACKAGE_DIR)
+if PACKAGE_DIR not in sys.path:
+    sys.path.insert(0, PACKAGE_DIR)
+
 PROJECT_ROOT = os.path.abspath(os.path.join(PACKAGE_DIR, ".."))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-App = import_module(f"{PACKAGE_NAME}.gui").App  # noqa: E402
-app_logger = import_module(f"{PACKAGE_NAME}.runtime.logger").app_logger  # noqa: E402
+try:
+    from gui import App
+    from runtime.logger import app_logger
+except (ImportError, ModuleNotFoundError):
+    from http_bot.gui import App
+    from http_bot.runtime.logger import app_logger
 
 
 def main():
