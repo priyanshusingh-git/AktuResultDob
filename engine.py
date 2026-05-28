@@ -4,12 +4,12 @@ import random
 import threading
 import time
 
-from .runtime.checkpoint_store import CheckpointStore
-from .runtime.excel_processor import ExcelProcessor
-from .runtime.logger import app_logger
+from runtime.checkpoint_store import CheckpointStore
+from runtime.excel_processor import ExcelProcessor
+from runtime.logger import app_logger
 
-from .client import OneViewHttpClient
-from .models import StudentRecord, StudentScrapeError, normalize_dob
+from client import OneViewHttpClient
+from models import StudentRecord, StudentScrapeError, normalize_dob
 
 
 MAX_STUDENT_ATTEMPTS = 2
@@ -124,7 +124,7 @@ class HttpScraperEngine:
         self._update_stats(total, processed, failed, time_str)
 
     def _run_loop(self, input_file, output_file, semesters):
-        from .runtime.config import APP_LABEL
+        from runtime.config import APP_LABEL
 
         self._update_status(f"Starting {APP_LABEL}...")
         self.active_run_id = None

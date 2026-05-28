@@ -12,6 +12,20 @@ datas.extend(tmp_ret[0])
 binaries.extend(tmp_ret[1])
 hiddenimports.extend(tmp_ret[2])
 
+# Explicitly declare local modules as hidden imports to ensure PyInstaller bundles them
+hiddenimports.extend([
+    'gui',
+    'engine',
+    'client',
+    'parser',
+    'models',
+    'runtime.config',
+    'runtime.logger',
+    'runtime.utils',
+    'runtime.checkpoint_store',
+    'runtime.excel_processor',
+])
+
 # Bundle seed session_caches directory if it exists
 if os.path.exists('session_caches'):
     datas.append(('session_caches', 'session_caches'))

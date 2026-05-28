@@ -16,7 +16,7 @@ class GUIQueueHandler(logging.Handler):
         log_entry = self.format(record)
         self.queue.put(log_entry)
 
-from .utils import get_logs_dir
+from runtime.utils import get_logs_dir
 
 class AppLogger:
     def __init__(self):

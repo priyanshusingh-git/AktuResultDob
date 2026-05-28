@@ -4,8 +4,8 @@ from bs4 import BeautifulSoup, SoupStrainer
 import requests
 import urllib3
 
-from .models import SessionBootstrapError, StudentResult, StudentScrapeError
-from .parser import extract_identity_markers, has_result_markers, parse_result_payload
+from models import SessionBootstrapError, StudentResult, StudentScrapeError
+from parser import extract_identity_markers, has_result_markers, parse_result_payload
 
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)

@@ -3,7 +3,7 @@ import sqlite3
 from contextlib import contextmanager
 from datetime import datetime
 
-from .utils import get_checkpoint_db_path
+from runtime.utils import get_checkpoint_db_path
 
 
 RUNNING_STATES = ("running", "stopped")

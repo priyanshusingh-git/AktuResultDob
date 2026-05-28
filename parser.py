@@ -3,7 +3,7 @@ from __future__ import annotations
 from bs4 import BeautifulSoup, SoupStrainer
 import re
 
-from .models import SemesterResult, StudentResult, SubjectResult
+from models import SemesterResult, StudentResult, SubjectResult
 
 PARSE_FILTER = SoupStrainer(["span", "table"])
 

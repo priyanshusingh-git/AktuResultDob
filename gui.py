@@ -9,11 +9,11 @@ import sys
 import tkinter as tk
 from tkinter import filedialog, messagebox
 
-from .runtime.config import APP_LABEL
-from .runtime.logger import app_logger
-from .runtime.utils import get_logs_dir, get_output_dir
+from runtime.config import APP_LABEL
+from runtime.logger import app_logger
+from runtime.utils import get_logs_dir, get_output_dir
 
-from .engine import HttpScraperEngine
+from engine import HttpScraperEngine
 
 
 class App(ctk.CTk):
