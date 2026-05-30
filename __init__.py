@@ -1,3 +1,0 @@
-"""
-HTTP-only AktuBot package.
-"""

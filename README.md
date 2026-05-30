@@ -118,3 +118,13 @@ To run the packaged app on macOS:
    ```bash
    xattr -cr /path/to/AKTU_Result.app
    ```
+
+---
+
+## Server Hosting & API Adaptability
+
+Because the core scraper engine (`client.py` and `parser.py`) is written in pure Python using lightweight `requests` and `BeautifulSoup` (rather than browser-based automation like Selenium or Playwright), you can easily host this bot online on a server to run headless:
+
+1. **Web Dashboard API**: You can build a web interface (e.g., using FastAPI or Flask) where users upload an Excel sheet and download the compiled results.
+2. **Automated Cron Jobs**: Set up a server script that runs on a schedule (e.g., every morning), fetches input from a shared folder (Google Drive, S3 bucket), crawls the results, and uploads the exported file back.
+3. **Serverless Functions**: Package the scraping client into AWS Lambda or Google Cloud Functions to retrieve individual results programmatically via on-demand HTTP API endpoints.
